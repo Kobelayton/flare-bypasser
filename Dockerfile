@@ -31,31 +31,31 @@ COPY utils/linux_chrome_deb_repo_installer.sh ./linux_chrome_deb_repo_installer.
 
 # If CHROME_VERSION ins't defined obviously use tested version by platform.
 # TODO: for arm64 (mac m1) check: m.b. chromium 130 is available - in this case use equal versions for arm64,aarch64.
-#RUN if [ "$CHROME_VERSION" = "" ] ; then \
-  #BUILD_ARCH="$(arch)" ; \
-  #if [ "$BUILD_ARCH" = "arm64" ] ; then echo 'CHROME_VERSION="120."' >>/tmp/build.env ; \
-  #elif [ "$BUILD_ARCH" = "aarch64" -o "$BUILD_ARCH" = "armv7l" ] ; then echo 'CHROME_VERSION="130."' >>/tmp/build.env ; \
-  #else echo 'CHROME_VERSION="131."' >>/tmp/build.env ; \
-  #fi ; \
-  #else echo 'CHROME_VERSION="'"$CHROME_VERSION"'"' >>/tmp/build.env ; \
-  #fi
+RUN if [ "$CHROME_VERSION" = "" ] ; then \
+  BUILD_ARCH="$(arch)" ; \
+  if [ "$BUILD_ARCH" = "arm64" ] ; then echo 'CHROME_VERSION="120."' >>/tmp/build.env ; \
+  elif [ "$BUILD_ARCH" = "aarch64" -o "$BUILD_ARCH" = "armv7l" ] ; then echo 'CHROME_VERSION="130."' >>/tmp/build.env ; \
+  else echo 'CHROME_VERSION="131."' >>/tmp/build.env ; \
+  fi ; \
+  else echo 'CHROME_VERSION="'"$CHROME_VERSION"'"' >>/tmp/build.env ; \
+  fi
 
 # We prefer version from archive, because it is more productive (faster start),
 # but for ARM's here no available versions in archive
-#RUN . /tmp/build.env ; if [ "$(arch)" != "x86_64" ] ; then \
-    #echo "To install chrome($CHROME_VERSION) from google repository (no archive versions for ARM)" ; \
-    #chmod +x ./linux_chrome_deb_repo_installer.sh ; \
-    #bash -c "./linux_chrome_deb_repo_installer.sh /opt/flare_bypasser/installed_chrome/ '$CHROME_VERSION'" || \
-    #{ echo "Can't install chrome (required version '$CHROME_VERSION')" >&2 ; exit 1 ; } ; \
-  #else \
-    #echo "To install chrome($CHROME_VERSION) from archive" ; \
-    #mkdir -p /opt/flare_bypasser/installed_chrome/usr/bin/ ; \
-    #python3 ./linux_chrome_archive_installer.py \
-      #--version-prefix="$CHROME_VERSION" \
-      #--install-root=/opt/flare_bypasser/installed_chrome/usr/bin/ \
-      #--arch=$(arch) || \
-    #{ echo "Can't install chrome (required version '$CHROME_VERSION')" >&2 ; exit 1 ; } ; \
-  #fi
+RUN . /tmp/build.env ; if [ "$(arch)" != "x86_64" ] ; then \
+    echo "To install chrome($CHROME_VERSION) from google repository (no archive versions for ARM)" ; \
+    chmod +x ./linux_chrome_deb_repo_installer.sh ; \
+    bash -c "./linux_chrome_deb_repo_installer.sh /opt/flare_bypasser/installed_chrome/ '$CHROME_VERSION'" || \
+    { echo "Can't install chrome (required version '$CHROME_VERSION')" >&2 ; exit 1 ; } ; \
+  else \
+    echo "To install chrome($CHROME_VERSION) from archive" ; \
+    mkdir -p /opt/flare_bypasser/installed_chrome/usr/bin/ ; \
+    python3 ./linux_chrome_archive_installer.py \
+      --version-prefix="$CHROME_VERSION" \
+      --install-root=/opt/flare_bypasser/installed_chrome/usr/bin/ \
+      --arch=$(arch) || \
+    { echo "Can't install chrome (required version '$CHROME_VERSION')" >&2 ; exit 1 ; } ; \
+  fi
 
 
 FROM python:${PYTHON_VERSION}-slim-bookworm
